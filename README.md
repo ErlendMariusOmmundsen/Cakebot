@@ -1,3 +1,3 @@
 # CakeBot
 
-Slackbot that sends a slack message to randomly chosen candidate. 
+Slackbot that randomly picks a person and commands them to make cake. 
