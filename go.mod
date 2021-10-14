@@ -1,9 +1,10 @@
-module KakeBot
+module Cakebot
 
-go 1.16
+go 1.17
+
+require github.com/slack-go/slack v0.9.5
 
 require (
-	github.com/nlopes/slack v0.6.0 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
-	github.com/slack-go/slack v0.9.5 // indirect
+	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/pkg/errors v0.8.0 // indirect
 )
