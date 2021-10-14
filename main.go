@@ -6,29 +6,12 @@ import (
 	"github.com/slack-go/slack/slackevents"
 	"github.com/slack-go/slack/socketmode"
 	"log"
-	"math/rand"
 	"os"
 	"strings"
 	"time"
 )
 
-func getAllCandidates() []string  {
-	return []string{"Erlend", "Hans", "Therese", "Sigurd", "Trym", "Sivert"}
-}
 
-func getCandidate(lastDate time.Time, gap time.Duration) string {
-	now := time.Now()
-	diff := now.Sub(lastDate)
-	if diff > gap {
-		rand.Seed(now.UnixNano())
-		i := rand.Intn(6)
-		allCandidates := getAllCandidates()
-		cand := allCandidates[i]
-		log.Printf("Chosen candidate is %s\n", cand)
-		return cand
-	}
-	return "Trym"
-}
 
 func main() {
 
@@ -100,7 +83,7 @@ func main() {
 				switch eventsAPIEvent.Type {
 				case slackevents.CallbackEvent:
 					innerEvent := eventsAPIEvent.InnerEvent
-					chosen := "Hei, " + getCandidate(LastDate, timeGap) + ". Her er et kakeeksempel"
+					chosen := "Hei, " + GetCandidate(LastDate, timeGap) + ". Her er et kakeeksempel"
 					switch ev := innerEvent.Data.(type) {
 					case *slackevents.AppMentionEvent:
 						msg := slack.Attachment{
