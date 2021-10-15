@@ -7,7 +7,7 @@ import (
 )
 
 func GetAllCandidates() []string  {
-	return []string{"Hans", "Therese", "Sigurd", "Trym", "Sivert, Asbjørn"}
+	return []string{"Hans", "Therese", "Sigurd", "Trym", "Sivert", "Asbjørn"}
 }
 
 func GetCandidate(lastDate time.Time, gap time.Duration) string {
@@ -15,11 +15,11 @@ func GetCandidate(lastDate time.Time, gap time.Duration) string {
 	diff := now.Sub(lastDate)
 	if diff > gap {
 		rand.Seed(now.UnixNano())
-		i := rand.Intn(6)
 		allCandidates := GetAllCandidates()
-		cand := allCandidates[i]
-		log.Printf("Chosen candidate is %s\n", cand)
-		return cand
+		i := rand.Intn(len(allCandidates))
+		chosen_candidate := allCandidates[i]
+		log.Printf("Chosen candidate is %s\n", chosen_candidate)
+		return chosen_candidate
 	}
 	return "Trym"
 }
