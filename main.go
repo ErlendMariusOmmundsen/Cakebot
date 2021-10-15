@@ -11,15 +11,12 @@ import (
 	"time"
 )
 
-
-
 func main() {
 
-	//os.Getenv("SLACK_OAUTH_TOKEN")
-
-	//SelectedPerson := ""
-	LastDate := time.Now()
-	timeGap, _ := time.ParseDuration("1s")
+	selectedPerson := ""
+	lastDate := time.Date(2021, 10, 15, 1, 59, 59, 0, time.UTC)
+	timeGap, _ := time.ParseDuration("1m")
+	// 168h
 
 	appToken, ok := os.LookupEnv("SLACK_TOKEN")
 	if !ok {
@@ -34,14 +31,14 @@ func main() {
 	}
 
 	if !strings.HasPrefix(appToken, "xapp-") {
-		_, err := fmt.Fprintf(os.Stderr, "SLACK_APP_TOKEN must have the prefix \"xapp-\".")
+		_, err := fmt.Fprintf(os.Stderr, "SLACK_APP_TOKEN must have the prefix \"xapp-\".\n")
 		if err != nil {
 			log.Println(err)
 		}
 	}
 
 	if !strings.HasPrefix(botToken, "xoxb-") {
-		_, err := fmt.Fprintf(os.Stderr, "SLACK_BOT_TOKEN must have the prefix \"xoxb-\".")
+		_, err := fmt.Fprintf(os.Stderr, "SLACK_BOT_TOKEN must have the prefix \"xoxb-\".\n")
 		if err != nil {
 			log.Println(err)
 		}
@@ -83,24 +80,39 @@ func main() {
 				switch eventsAPIEvent.Type {
 				case slackevents.CallbackEvent:
 					innerEvent := eventsAPIEvent.InnerEvent
-					chosen := "Hei, " + GetCandidate(LastDate, timeGap) + ". Her er et kakeeksempel"
-					switch ev := innerEvent.Data.(type) {
-					case *slackevents.AppMentionEvent:
-						msg := slack.Attachment{
-							Color:         "",
-							Title:         "Dette er en melding btw",
-							TitleLink:     "https://youtu.be/WJq4jWSQNd8",
-							Pretext:       "Her kommer meldingen:",
-							Text:          chosen,
-							ImageURL:      "https://www.boredpanda.com/blog/wp-content/uploads/2020/10/funny-expectation-reality-cakes-14-5f7f16831f8db__700.jpg",
-							Footer:        "Kul melding, sant?",
+					if time.Now().Sub(lastDate) >= timeGap {
+						lastDate = time.Now()
+						chosenCandidate := GetCandidate(lastDate, timeGap)
+						selectedPerson = chosenCandidate
+						chosenMsg := "Gratulerer, " + chosenCandidate + ". Det er din tur til å lage kake! :cake:"
+						switch ev := innerEvent.Data.(type) {
+						case *slackevents.AppMentionEvent:
+							msg := slack.Attachment{
+								Color:     "",
+								Title:     "Artig link",
+								TitleLink: "https://youtu.be/WJq4jWSQNd8",
+								Pretext:   chosenMsg,
+								Text:      "Du kan jo prøve deg på denne:",
+								ImageURL:  "https://www.boredpanda.com/blog/wp-content/uploads/2020/10/funny-expectation-reality-cakes-14-5f7f16831f8db__700.jpg",
+								Footer:    "Ser ganske lett ut.",
+							}
+							_, _, err := api.PostMessage(ev.Channel, slack.MsgOptionAttachments(msg))
+							if err != nil {
+								fmt.Printf("failed posting message: %v", err)
+							}
 						}
-						_, _, err := api.PostMessage(ev.Channel, slack.MsgOptionAttachments(msg))
-						if err != nil {
-							fmt.Printf("failed posting message: %v", err)
+					} else {
+						log.Println("Too little time has passed")
+						switch ev := innerEvent.Data.(type) {
+						case *slackevents.AppMentionEvent:
+							msg := slack.Attachment{
+								Pretext: "Det er fortsatt " + selectedPerson + " som skal lage kake :cake:",
+							}
+							_, _, err := api.PostMessage(ev.Channel, slack.MsgOptionAttachments(msg))
+							if err != nil {
+								fmt.Printf("failed posting message: %v", err)
+							}
 						}
-					case *slackevents.MemberJoinedChannelEvent:
-						fmt.Printf("user %q joined to channel %q", ev.User, ev.Channel)
 					}
 
 				default:
@@ -177,7 +189,6 @@ func main() {
 	if err != nil {
 		err.Error()
 	}
-
 
 }
 
