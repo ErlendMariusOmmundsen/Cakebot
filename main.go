@@ -15,8 +15,7 @@ func main() {
 
 	selectedPerson := ""
 	lastDate := time.Date(2021, 10, 15, 1, 59, 59, 0, time.UTC)
-	timeGap, _ := time.ParseDuration("1m")
-	// 168h
+	timeGap, _ := time.ParseDuration("168h")
 
 	appToken, ok := os.LookupEnv("SLACK_TOKEN")
 	if !ok {
