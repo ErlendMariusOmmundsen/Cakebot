@@ -14,8 +14,8 @@ import (
 func main() {
 
 	selectedPerson := ""
-	lastDate := time.Date(2021, 10, 15, 1, 59, 59, 0, time.UTC)
-	timeGap, _ := time.ParseDuration("168h")
+	lastDate := time.Date(2021, 10, 15, 17, 00, 00, 0, time.Local)
+	timeGap, _ := time.ParseDuration("25h")
 
 	appToken, ok := os.LookupEnv("SLACK_TOKEN")
 	if !ok {
@@ -79,21 +79,19 @@ func main() {
 				switch eventsAPIEvent.Type {
 				case slackevents.CallbackEvent:
 					innerEvent := eventsAPIEvent.InnerEvent
-					if time.Now().Sub(lastDate) >= timeGap {
+					if IsEnoughTimePassed(lastDate, timeGap) && ItIsMondayMyDudes() {
 						lastDate = time.Now()
-						chosenCandidate := GetCandidate(lastDate, timeGap)
+						chosenCandidate := GetCandidate()
 						selectedPerson = chosenCandidate
 						chosenMsg := "Gratulerer, " + chosenCandidate + ". Det er din tur til å lage kake! :cake:"
 						switch ev := innerEvent.Data.(type) {
 						case *slackevents.AppMentionEvent:
 							msg := slack.Attachment{
-								Color:     "",
 								Title:     "Artig link",
 								TitleLink: "https://youtu.be/WJq4jWSQNd8",
 								Pretext:   chosenMsg,
 								Text:      "Du kan jo prøve deg på denne:",
 								ImageURL:  "https://www.boredpanda.com/blog/wp-content/uploads/2020/10/funny-expectation-reality-cakes-14-5f7f16831f8db__700.jpg",
-								Footer:    "Ser ganske lett ut.",
 							}
 							_, _, err := api.PostMessage(ev.Channel, slack.MsgOptionAttachments(msg))
 							if err != nil {
@@ -101,7 +99,7 @@ func main() {
 							}
 						}
 					} else {
-						log.Println("Too little time has passed")
+						log.Println("Shef was called, but not enough time has passed")
 						switch ev := innerEvent.Data.(type) {
 						case *slackevents.AppMentionEvent:
 							msg := slack.Attachment{
@@ -190,17 +188,3 @@ func main() {
 	}
 
 }
-
-//channelId, timestamp, err := api.PostMessage(
-//	ChannelId,
-//	slack.MsgOptionText("This is the main message", false),
-//	slack.MsgOptionAttachments(attachment),
-//	slack.MsgOptionAsUser(true),
-//)
-//
-//if err != nil {
-//	log.Fatalf("%s\n", err)
-//}
-//
-//log.Printf("Message successfully sent to Channel %s at %s\n", channelId, timestamp)
-//}
