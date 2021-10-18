@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-func GetAllCandidates() []string {
-	return []string{"Hans", "Therese", "Sigurd", "Trym", "Sivert", "Asbjørn"}
+func Remove(s []string, i int) []string {
+	return append(s[:i], s[i+1:]...)
 }
 
 func IsEnoughTimePassed(lastDate time.Time, gap time.Duration) bool {
@@ -20,12 +20,21 @@ func ItIsMondayMyDudes() bool {
 	return time.Now().Weekday().String() == "Monday"
 }
 
-func GetCandidate() string {
+func GetStringsOfSlice(coll []string) string {
+	result := coll[0]
+	for i := 1; i < len(coll); i++ {
+		result = result + ", " + coll[i]
+	}
+	return result
+}
+
+func PopCandidate(allCandidates []string) (string, []string) {
 	now := time.Now()
 	rand.Seed(now.UnixNano())
-	allCandidates := GetAllCandidates()
 	i := rand.Intn(len(allCandidates))
 	chosenCandidate := allCandidates[i]
+	allCandidates = Remove(allCandidates, i)
 	log.Printf("Chosen candidate is %s\n", chosenCandidate)
-	return chosenCandidate
+	log.Printf("Remaining eligible candidates are %v\n", allCandidates)
+	return chosenCandidate, allCandidates
 }

@@ -13,6 +13,8 @@ import (
 
 func main() {
 
+	candidates := []string{"Hans", "Therese", "Sigurd", "Trym", "Sivert", "Asbjørn", "Erlend"}
+	candidatePool := []string{"Hans", "Therese", "Sigurd", "Trym", "Sivert", "Asbjørn"}
 	selectedPerson := ""
 	lastDate := time.Date(2021, 10, 15, 17, 00, 00, 0, time.Local)
 	timeGap, _ := time.ParseDuration("25h")
@@ -81,7 +83,15 @@ func main() {
 					innerEvent := eventsAPIEvent.InnerEvent
 					if IsEnoughTimePassed(lastDate, timeGap) && ItIsMondayMyDudes() {
 						lastDate = time.Now()
-						chosenCandidate := GetCandidate()
+						chosenCandidate, newCandidates := PopCandidate(candidatePool)
+						if len(newCandidates) == 0 {
+							candidatePool = candidates
+						} else {
+							candidatePool = newCandidates
+						}
+						for i := 0; i < len(candidatePool); i++ {
+							println(candidatePool[i])
+						}
 						selectedPerson = chosenCandidate
 						chosenMsg := "Gratulerer, " + chosenCandidate + ". Det er din tur til å lage kake! :cake:"
 						switch ev := innerEvent.Data.(type) {
@@ -99,7 +109,7 @@ func main() {
 							}
 						}
 					} else {
-						log.Println("Shef was called, but not enough time has passed")
+						log.Println("Cakebot was called, but not enough time has passed")
 						switch ev := innerEvent.Data.(type) {
 						case *slackevents.AppMentionEvent:
 							msg := slack.Attachment{
