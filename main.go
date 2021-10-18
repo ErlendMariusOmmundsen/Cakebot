@@ -19,7 +19,7 @@ func main() {
 	lastDate := time.Date(2021, 10, 15, 17, 00, 00, 0, time.Local)
 	timeGap, _ := time.ParseDuration("25h")
 
-	appToken, ok := os.LookupEnv("SLACK_TOKEN")
+	appToken, ok := os.LookupEnv("SLACK_APP_TOKEN")
 	if !ok {
 		fmt.Println("Missing SLACK_APP_TOKEN in environment")
 		os.Exit(1)
