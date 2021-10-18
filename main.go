@@ -107,6 +107,10 @@ func main() {
 							if err != nil {
 								fmt.Printf("failed posting message: %v", err)
 							}
+							// TODO: Update permissions to add pin
+							//if err = api.AddPin(cmd.ChannelID, slack.ItemRef{}); err != nil {
+							//	fmt.Printf("Error adding pin: %s\n", err)
+							//}
 						}
 					} else {
 						log.Println("Cakebot was called, but not enough time has passed")
@@ -173,10 +177,31 @@ func main() {
 					if err != nil {
 						fmt.Printf("failed posting message: %v", err)
 					}
-					// TODO: Update permissions to add pin
-					//if err = api.AddPin(cmd.ChannelID, slack.ItemRef{}); err != nil {
-					//	fmt.Printf("Error adding pin: %s\n", err)
-					//}
+
+				case cmd.Command == "/reset_kandidater":
+					msg := slack.Attachment{
+						Pretext: cmd.UserName + " la alle til i trekningen! :powerstonk:",
+					}
+					_, _, err := api.PostMessage(cmd.ChannelID, slack.MsgOptionAttachments(msg))
+					if err != nil {
+						fmt.Printf("failed posting message: %v", err)
+					}
+
+				case cmd.Command == "/fjern_kandidat":
+					var msg slack.Attachment
+					if Contains(candidatePool, cmd.Text) {
+						msg = slack.Attachment{
+							Pretext: cmd.UserName + " fjernet " + cmd.Text + " fra trekningen :notstonks:",
+						}
+					} else {
+						msg = slack.Attachment{
+							Pretext: cmd.UserName + " prøvde å fjerne " + cmd.Text + " fra trekningen, men " + cmd.Text + " var aldri med i trekningen :shrek:",
+						}
+					}
+					_, _, err := api.PostMessage(cmd.ChannelID, slack.MsgOptionAttachments(msg))
+					if err != nil {
+						fmt.Printf("failed posting message: %v", err)
+					}
 				}
 			default:
 				_, err := fmt.Fprintf(os.Stderr, "Unexpected event type received: %s\n", evt.Type)
