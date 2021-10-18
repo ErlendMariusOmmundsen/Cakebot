@@ -161,28 +161,23 @@ func main() {
 
 				client.Debugf("Slash command received: %+v", cmd)
 
-				payload := map[string]interface{}{
-					"blocks": []slack.Block{
-						slack.NewSectionBlock(
-							&slack.TextBlockObject{
-								Type: slack.MarkdownType,
-								Text: "foo",
-							},
-							nil,
-							slack.NewAccessory(
-								slack.NewButtonBlockElement(
-									"",
-									"some value",
-									&slack.TextBlockObject{
-										Type: slack.PlainTextType,
-										Text: "bar",
-									},
-								),
-							),
-						),
-					}}
-
-				client.Ack(*evt.Request, payload)
+				// TODO: Update permissions to view user info
+				//profile, _ := api.GetUserProfile(&slack.GetUserProfileParameters{UserID: cmd.UserID})
+				switch {
+				case cmd.Command == "/kandidater":
+					msg := slack.Attachment{
+						Pretext: cmd.UserName + " kalte på meg :kanelsnurr: Dette er kandidatene:",
+						Text:    GetStringsOfSlice(candidatePool),
+					}
+					_, _, err := api.PostMessage(cmd.ChannelID, slack.MsgOptionAttachments(msg))
+					if err != nil {
+						fmt.Printf("failed posting message: %v", err)
+					}
+					// TODO: Update permissions to add pin
+					//if err = api.AddPin(cmd.ChannelID, slack.ItemRef{}); err != nil {
+					//	fmt.Printf("Error adding pin: %s\n", err)
+					//}
+				}
 			default:
 				_, err := fmt.Fprintf(os.Stderr, "Unexpected event type received: %s\n", evt.Type)
 				if err != nil {
