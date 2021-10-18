@@ -20,6 +20,15 @@ func ItIsMondayMyDudes() bool {
 	return time.Now().Weekday().String() == "Monday"
 }
 
+func Contains(s []string, str string) bool {
+	for _, a := range s {
+		if a == str {
+			return true
+		}
+	}
+	return false
+}
+
 func GetStringsOfSlice(coll []string) string {
 	result := coll[0]
 	for i := 1; i < len(coll); i++ {
@@ -35,6 +44,6 @@ func PopCandidate(allCandidates []string) (string, []string) {
 	chosenCandidate := allCandidates[i]
 	allCandidates = Remove(allCandidates, i)
 	log.Printf("Chosen candidate is %s\n", chosenCandidate)
-	log.Printf("Remaining eligible candidates are %v\n", allCandidates)
+	log.Printf("Updateted candidate pool: %v\n", allCandidates)
 	return chosenCandidate, allCandidates
 }
