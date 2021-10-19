@@ -196,7 +196,7 @@ func main() {
 						msg = slack.Attachment{
 							Pretext: cmd.UserName + " fjernet " + cmd.Text + " fra trekningen :notstonks:",
 						}
-						Remove(candidatePool, GetIndexInSlice(candidatePool, cmd.Text))
+						candidatePool = Remove(candidatePool, GetIndexInSlice(candidatePool, cmd.Text))
 					} else {
 						msg = slack.Attachment{
 							Pretext: cmd.UserName + " prøvde å fjerne " + cmd.Text + " fra trekningen, men " + cmd.Text + " var aldri med i trekningen :shrek:",
@@ -209,14 +209,14 @@ func main() {
 
 				case cmd.Command == "/legg_til_kandidat":
 					var msg slack.Attachment
-					if !Contains(candidatePool, cmd.Text) {
+					if !Contains(candidatePool, cmd.Text) && len(cmd.Text) > 2 {
 						candidatePool = append(candidatePool, cmd.Text)
 						msg = slack.Attachment{
 							Pretext: cmd.UserName + " la til " + cmd.Text + " i trekningen :powerstonk:",
 						}
 					} else {
 						msg = slack.Attachment{
-							Pretext: cmd.UserName + " prøvde å legge til " + cmd.Text + " i trekningen, men " + cmd.Text + " var allerede med i trekningen :shrek:",
+							Pretext: cmd.UserName + " prøvde å legge til \"" + cmd.Text + "\" i trekningen, men \"" + cmd.Text + "\" er for kort eller allerede med i trekningen :shrek:",
 						}
 					}
 					_, _, err := api.PostMessage(cmd.ChannelID, slack.MsgOptionAttachments(msg))
