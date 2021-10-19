@@ -93,7 +93,7 @@ func main() {
 							println(candidatePool[i])
 						}
 						selectedPerson = chosenCandidate
-						chosenMsg := "Gratulerer, " + chosenCandidate + ". Det er din tur til å lage kake! :cake:"
+						chosenMsg := "<!channel> Gratulerer, " + chosenCandidate + ". Det er din tur til å lage kake! :cake:"
 						switch ev := innerEvent.Data.(type) {
 						case *slackevents.AppMentionEvent:
 							msg := slack.Attachment{
