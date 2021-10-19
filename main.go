@@ -17,7 +17,7 @@ func main() {
 	candidatePool := []string{"Hans", "Therese", "Sigurd", "Trym", "Sivert", "Asbjørn"}
 	selectedPerson := ""
 	lastDate := time.Date(2021, 10, 15, 17, 00, 00, 0, time.Local)
-	timeGap, _ := time.ParseDuration("25h")
+	timeGap, _ := time.ParseDuration("10m")
 
 	appToken, ok := os.LookupEnv("SLACK_APP_TOKEN")
 	if !ok {
@@ -178,9 +178,9 @@ func main() {
 						fmt.Printf("failed posting message: %v", err)
 					}
 
-				case cmd.Command == "/reset_kandidater":
+				case cmd.Command == "/reset":
 					candidatePool = candidates
-					lastDate = time.Date(2020, 0, 0, 0, 0, 0, 0, time.Local)
+					lastDate = time.Date(2000, 0, 0, 0, 0, 0, 0, time.Local)
 					msg := slack.Attachment{
 						Pretext: cmd.UserName + " la alle til i trekningen! :powerstonk: Dette er nå kandidatene: ",
 						Text:    GetStringsOfSlice(candidatePool),
