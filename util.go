@@ -10,14 +10,19 @@ func Remove(s []string, i int) []string {
 	return append(s[:i], s[i+1:]...)
 }
 
+func GetIndexInSlice(s []string, str string) int {
+	for i := 0; i < len(s); i++ {
+		if str == s[i] {
+			return i
+		}
+	}
+	return -1
+}
+
 func IsEnoughTimePassed(lastDate time.Time, gap time.Duration) bool {
 	now := time.Now()
 	diff := now.Sub(lastDate)
 	return diff > gap
-}
-
-func ItIsMondayMyDudes() bool {
-	return time.Now().Weekday().String() == "Monday"
 }
 
 func Contains(s []string, str string) bool {

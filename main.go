@@ -81,7 +81,7 @@ func main() {
 				switch eventsAPIEvent.Type {
 				case slackevents.CallbackEvent:
 					innerEvent := eventsAPIEvent.InnerEvent
-					if IsEnoughTimePassed(lastDate, timeGap) && ItIsMondayMyDudes() {
+					if IsEnoughTimePassed(lastDate, timeGap) {
 						lastDate = time.Now()
 						chosenCandidate, newCandidates := PopCandidate(candidatePool)
 						if len(newCandidates) == 0 {
@@ -179,8 +179,11 @@ func main() {
 					}
 
 				case cmd.Command == "/reset_kandidater":
+					candidatePool = candidates
+					lastDate = time.Date(2020, 0, 0, 0, 0, 0, 0, time.Local)
 					msg := slack.Attachment{
-						Pretext: cmd.UserName + " la alle til i trekningen! :powerstonk:",
+						Pretext: cmd.UserName + " la alle til i trekningen! :powerstonk: Dette er nå kandidatene: ",
+						Text:    GetStringsOfSlice(candidatePool),
 					}
 					_, _, err := api.PostMessage(cmd.ChannelID, slack.MsgOptionAttachments(msg))
 					if err != nil {
@@ -193,9 +196,27 @@ func main() {
 						msg = slack.Attachment{
 							Pretext: cmd.UserName + " fjernet " + cmd.Text + " fra trekningen :notstonks:",
 						}
+						Remove(candidatePool, GetIndexInSlice(candidatePool, cmd.Text))
 					} else {
 						msg = slack.Attachment{
 							Pretext: cmd.UserName + " prøvde å fjerne " + cmd.Text + " fra trekningen, men " + cmd.Text + " var aldri med i trekningen :shrek:",
+						}
+					}
+					_, _, err := api.PostMessage(cmd.ChannelID, slack.MsgOptionAttachments(msg))
+					if err != nil {
+						fmt.Printf("failed posting message: %v", err)
+					}
+
+				case cmd.Command == "/legg_til_kandidat":
+					var msg slack.Attachment
+					if !Contains(candidatePool, cmd.Text) {
+						candidatePool = append(candidatePool, cmd.Text)
+						msg = slack.Attachment{
+							Pretext: cmd.UserName + " la til " + cmd.Text + " i trekningen :powerstonk:",
+						}
+					} else {
+						msg = slack.Attachment{
+							Pretext: cmd.UserName + " prøvde å legge til " + cmd.Text + " i trekningen, men " + cmd.Text + " var allerede med i trekningen :shrek:",
 						}
 					}
 					_, _, err := api.PostMessage(cmd.ChannelID, slack.MsgOptionAttachments(msg))
