@@ -49,6 +49,6 @@ func PopCandidate(allCandidates []string) (string, []string) {
 	chosenCandidate := allCandidates[i]
 	allCandidates = Remove(allCandidates, i)
 	log.Printf("Chosen candidate is %s\n", chosenCandidate)
-	log.Printf("Updateted candidate pool: %v\n", allCandidates)
+	log.Printf("Updated candidate pool: %v\n", allCandidates)
 	return chosenCandidate, allCandidates
 }
