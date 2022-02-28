@@ -57,6 +57,7 @@ func main() {
 		socketmode.OptionLog(log.New(os.Stdout, "socketmode: ", log.Lshortfile|log.LstdFlags)),
 	)
 
+	// TODO: Add funtionality for manually pick next candidate
 	go func() {
 		for evt := range client.Events {
 			switch evt.Type {
@@ -94,7 +95,7 @@ func main() {
 						}
 						selectedPerson = chosenCandidate
 						chosenMsg := "<!channel> Gratulerer, " + chosenCandidate + ". Det er din tur til å lage kake! :cake:"
-						switch ev := innerEvent.Data.(type) {
+						switch event := innerEvent.Data.(type) {
 						case *slackevents.AppMentionEvent:
 							msg := slack.Attachment{
 								Title:     "Artig link",
@@ -103,14 +104,15 @@ func main() {
 								Text:      "Du kan jo prøve deg på denne:",
 								ImageURL:  "https://www.boredpanda.com/blog/wp-content/uploads/2020/10/funny-expectation-reality-cakes-14-5f7f16831f8db__700.jpg",
 							}
-							_, _, err := api.PostMessage(ev.Channel, slack.MsgOptionAttachments(msg))
+							_, respTS, err := api.PostMessage(event.Channel, slack.MsgOptionAttachments(msg))
 							if err != nil {
 								fmt.Printf("failed posting message: %v", err)
 							}
-							// TODO: Update permissions to add pin
-							//if err = api.AddPin(cmd.ChannelID, slack.ItemRef{}); err != nil {
-							//	fmt.Printf("Error adding pin: %s\n", err)
-							//}
+							pinErr := api.AddPin(event.Channel, slack.NewRefToMessage(event.Channel, respTS))
+							if pinErr != nil {
+								fmt.Printf("Error adding pin: %s\n", err)
+							}
+							// TODO: Remove existing pins
 						}
 					} else {
 						log.Println("Cakebot was called, but not enough time has passed")
