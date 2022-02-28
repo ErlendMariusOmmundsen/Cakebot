@@ -52,3 +52,11 @@ func PopCandidate(allCandidates []string) (string, []string) {
 	log.Printf("Updated candidate pool: %v\n", allCandidates)
 	return chosenCandidate, allCandidates
 }
+
+func resetCandidates(currentPool []string, candidates []string) []string {
+	currentPool = nil
+	for i := range candidates {
+		currentPool = append(currentPool, candidates[i])
+	}
+	return currentPool
+}
