@@ -165,12 +165,11 @@ func main() {
 
 				client.Debugf("Slash command received: %+v", cmd)
 
-				// TODO: Update permissions to view user info
-				//profile, _ := api.GetUserProfile(&slack.GetUserProfileParameters{UserID: cmd.UserID})
+				profile, _ := api.GetUserProfile(&slack.GetUserProfileParameters{UserID: cmd.UserID})
 				switch {
 				case cmd.Command == "/kandidater":
 					msg := slack.Attachment{
-						Pretext: cmd.UserName + " kalte på meg :kanelsnurr: Dette er kandidatene:",
+						Pretext: profile.FirstName + " kalte på meg :kanelsnurr: Dette er kandidatene:",
 						Text:    GetStringsOfSlice(candidatePool),
 					}
 					_, _, err := api.PostMessage(cmd.ChannelID, slack.MsgOptionAttachments(msg))
@@ -181,10 +180,11 @@ func main() {
 					}
 
 				case cmd.Command == "/reset":
+					profile, _ := api.GetUserProfile(&slack.GetUserProfileParameters{UserID: cmd.UserID})
 					candidatePool = resetCandidates(candidatePool, candidates)
 					lastDate = time.Date(2000, 0, 0, 0, 0, 0, 0, time.Local)
 					msg := slack.Attachment{
-						Pretext: cmd.UserName + " la alle til i trekningen! :powerstonk: Dette er nå kandidatene: ",
+						Pretext: profile.FirstName + " la alle til i trekningen! :powerstonk: Dette er nå kandidatene: ",
 						Text:    GetStringsOfSlice(candidatePool),
 					}
 					_, _, err := api.PostMessage(cmd.ChannelID, slack.MsgOptionAttachments(msg))
@@ -193,15 +193,16 @@ func main() {
 					}
 
 				case cmd.Command == "/fjern_kandidat":
+					profile, _ := api.GetUserProfile(&slack.GetUserProfileParameters{UserID: cmd.UserID})
 					var msg slack.Attachment
 					if Contains(candidatePool, cmd.Text) {
 						msg = slack.Attachment{
-							Pretext: cmd.UserName + " fjernet " + cmd.Text + " fra trekningen :notstonks:",
+							Pretext: profile.FirstName + " fjernet " + cmd.Text + " fra trekningen :notstonks:",
 						}
 						candidatePool = Remove(candidatePool, GetIndexInSlice(candidatePool, cmd.Text))
 					} else {
 						msg = slack.Attachment{
-							Pretext: cmd.UserName + " prøvde å fjerne " + cmd.Text + " fra trekningen, men " + cmd.Text + " var aldri med i trekningen :shrek:",
+							Pretext: profile.FirstName + " prøvde å fjerne " + cmd.Text + " fra trekningen, men " + cmd.Text + " var aldri med i trekningen :shrek:",
 						}
 					}
 					_, _, err := api.PostMessage(cmd.ChannelID, slack.MsgOptionAttachments(msg))
@@ -210,15 +211,16 @@ func main() {
 					}
 
 				case cmd.Command == "/legg_til_kandidat":
+					profile, _ := api.GetUserProfile(&slack.GetUserProfileParameters{UserID: cmd.UserID})
 					var msg slack.Attachment
 					if !Contains(candidatePool, cmd.Text) && len(cmd.Text) > 2 {
 						candidatePool = append(candidatePool, cmd.Text)
 						msg = slack.Attachment{
-							Pretext: cmd.UserName + " la til " + cmd.Text + " i trekningen :powerstonk:",
+							Pretext: profile.FirstName + " la til " + cmd.Text + " i trekningen :powerstonk:",
 						}
 					} else {
 						msg = slack.Attachment{
-							Pretext: cmd.UserName + " prøvde å legge til \"" + cmd.Text + "\" i trekningen, men \"" + cmd.Text + "\" er for kort eller allerede med i trekningen :shrek:",
+							Pretext: profile.FirstName + " prøvde å legge til \"" + cmd.Text + "\" i trekningen, men \"" + cmd.Text + "\" er for kort eller allerede med i trekningen :shrek:",
 						}
 					}
 					_, _, err := api.PostMessage(cmd.ChannelID, slack.MsgOptionAttachments(msg))
