@@ -13,11 +13,11 @@ import (
 
 func main() {
 
-	candidates := []string{"Hans", "Therese", "Sigurd", "Trym", "Sivert", "Asbjørn", "Erlend"}
-	candidatePool := []string{"Hans", "Therese", "Sigurd", "Trym", "Sivert", "Asbjørn"}
+	candidates := []string{"Hans", "Therese", "Trym", "Sivert", "Asbjørn", "Erlend"}
+	candidatePool := []string{"Hans", "Therese", "Trym", "Sivert", "Asbjørn", "Erlend"}
 	selectedPerson := ""
 	lastDate := time.Date(2021, 10, 15, 17, 00, 00, 0, time.Local)
-	timeGap, _ := time.ParseDuration("1s")
+	cooldown, _ := time.ParseDuration("10m")
 
 	appToken, ok := os.LookupEnv("SLACK_APP_TOKEN")
 	if !ok {
