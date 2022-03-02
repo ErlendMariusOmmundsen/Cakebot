@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/peterhellberg/giphy"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 	"github.com/slack-go/slack/socketmode"
@@ -18,6 +19,7 @@ func main() {
 	selectedPerson := ""
 	lastDate := time.Date(2021, 10, 15, 17, 00, 00, 0, time.Local)
 	cooldown, _ := time.ParseDuration("10m")
+	searchTerms := []string{"cake"}
 
 	appToken, ok := os.LookupEnv("SLACK_APP_TOKEN")
 	if !ok {
@@ -28,6 +30,12 @@ func main() {
 	botToken, ok := os.LookupEnv("SLACK_BOT_TOKEN")
 	if !ok {
 		fmt.Println("Missing SLACK_BOT_TOKEN in environment")
+		os.Exit(1)
+	}
+
+	giphyKey, ok := os.LookupEnv("GIPHY_API_KEY")
+	if !ok {
+		fmt.Println("Missing GIPHY_API_KEY in environment")
 		os.Exit(1)
 	}
 
@@ -59,6 +67,8 @@ func main() {
 
 	// TODO: Add funtionality for manually pick next candidate
 	go func() {
+
+		giphyClient := giphy.NewClient(giphy.APIKey(giphyKey))
 		for evt := range client.Events {
 			switch evt.Type {
 			case socketmode.EventTypeConnecting:
@@ -101,8 +111,14 @@ func main() {
 								Title:     "Artig link",
 								TitleLink: "https://youtu.be/WJq4jWSQNd8",
 								Pretext:   chosenMsg,
-								Text:      "Du kan jo prøve deg på denne:",
-								ImageURL:  "https://www.boredpanda.com/blog/wp-content/uploads/2020/10/funny-expectation-reality-cakes-14-5f7f16831f8db__700.jpg",
+								Text:      "Bli inspirert:",
+							}
+							random, err := giphyClient.Random(searchTerms)
+							if err != nil {
+								fmt.Println(err.Error())
+								msg.ImageURL = "https://img.devrant.com/devrant/rant/r_2306733_137EK.jpg"
+							} else {
+								msg.ImageURL = random.Data.MediaURL()
 							}
 							_, respTS, err := api.PostMessage(event.Channel, slack.MsgOptionAttachments(msg))
 							if err != nil {
@@ -237,8 +253,14 @@ func main() {
 						Title:     "Artig link",
 						TitleLink: "https://youtu.be/WJq4jWSQNd8",
 						Pretext:   chosenMsg,
-						Text:      "Du kan jo prøve deg på denne:",
-						ImageURL:  "https://www.boredpanda.com/blog/wp-content/uploads/2020/10/funny-expectation-reality-cakes-14-5f7f16831f8db__700.jpg",
+						Text:      "Bli inspirert:",
+					}
+					random, err := giphyClient.Random(searchTerms)
+					if err != nil {
+						fmt.Println(err.Error())
+						msg.ImageURL = "https://img.devrant.com/devrant/rant/r_2306733_137EK.jpg"
+					} else {
+						msg.ImageURL = random.Data.MediaURL()
 					}
 					_, respTS, err := api.PostMessage(cmd.ChannelID, slack.MsgOptionAttachments(msg))
 					if err != nil {
