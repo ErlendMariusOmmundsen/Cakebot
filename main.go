@@ -82,7 +82,7 @@ func main() {
 				switch eventsAPIEvent.Type {
 				case slackevents.CallbackEvent:
 					innerEvent := eventsAPIEvent.InnerEvent
-					if IsEnoughTimePassed(lastDate, timeGap) {
+					if IsEnoughTimePassed(lastDate, cooldown) {
 						lastDate = time.Now()
 						chosenCandidate, newCandidates := PopCandidate(candidatePool)
 						if len(newCandidates) == 0 {
@@ -226,6 +226,36 @@ func main() {
 						}
 					}
 					_, _, err := api.PostMessage(cmd.ChannelID, slack.MsgOptionAttachments(msg))
+					if err != nil {
+						fmt.Printf("failed posting message: %v", err)
+					}
+				case cmd.Command == "/velg_kandidat":
+					profile, _ := api.GetUserProfile(&slack.GetUserProfileParameters{UserID: cmd.UserID})
+					var msg slack.Attachment
+					chosenMsg := "<!channel> Gratulerer, " + cmd.Text + " :cake: " + profile.FirstName + " valgte deg, det er din tur til å lage kake! :cake:"
+					msg = slack.Attachment{
+						Title:     "Artig link",
+						TitleLink: "https://youtu.be/WJq4jWSQNd8",
+						Pretext:   chosenMsg,
+						Text:      "Du kan jo prøve deg på denne:",
+						ImageURL:  "https://www.boredpanda.com/blog/wp-content/uploads/2020/10/funny-expectation-reality-cakes-14-5f7f16831f8db__700.jpg",
+					}
+					_, respTS, err := api.PostMessage(cmd.ChannelID, slack.MsgOptionAttachments(msg))
+					if err != nil {
+						fmt.Printf("failed posting message: %v", err)
+					}
+					pinErr := api.AddPin(cmd.ChannelID, slack.NewRefToMessage(cmd.ChannelID, respTS))
+					if pinErr != nil {
+						fmt.Printf("Error adding pin: %s\n", err)
+					}
+					// TODO: Remove existing pins
+					if Contains(candidatePool, cmd.Text) && len(cmd.Text) > 2 {
+						candidatePool = Remove(candidatePool, GetIndexInSlice(candidatePool, cmd.Text))
+						if len(candidatePool) == 0 {
+							candidatePool = resetCandidates(candidatePool, candidates)
+						}
+					}
+					_, _, err = api.PostMessage(cmd.ChannelID, slack.MsgOptionAttachments(msg))
 					if err != nil {
 						fmt.Printf("failed posting message: %v", err)
 					}
