@@ -44,8 +44,8 @@ func GetStringsOfSlice(coll []string) string {
 
 func PopCandidate(allCandidates []string) (string, []string) {
 	now := time.Now()
-	rand.Seed(now.UnixNano())
-	i := rand.Intn(len(allCandidates))
+	r := rand.New(rand.NewSource(now.UnixNano()))
+	i := r.Intn(len(allCandidates))
 	chosenCandidate := allCandidates[i]
 	allCandidates = Remove(allCandidates, i)
 	log.Printf("Chosen candidate is %s\n", chosenCandidate)
