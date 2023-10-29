@@ -2,20 +2,21 @@ package main
 
 import (
 	"fmt"
-	"github.com/peterhellberg/giphy"
-	"github.com/slack-go/slack"
-	"github.com/slack-go/slack/slackevents"
-	"github.com/slack-go/slack/socketmode"
 	"log"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/peterhellberg/giphy"
+	"github.com/slack-go/slack"
+	"github.com/slack-go/slack/slackevents"
+	"github.com/slack-go/slack/socketmode"
 )
 
 func main() {
 
-	candidates := []string{"Hans", "Therese", "Trym", "Sivert", "Asbjørn", "Erlend"}
-	candidatePool := []string{"Hans", "Therese", "Trym", "Sivert", "Asbjørn", "Erlend"}
+	candidates := []string{}
+	candidatePool := []string{}
 	selectedPerson := ""
 	lastDate := time.Date(2021, 10, 15, 17, 00, 00, 0, time.Local)
 	cooldown, _ := time.ParseDuration("10m")
@@ -285,7 +286,7 @@ func main() {
 			default:
 				_, err := fmt.Fprintf(os.Stderr, "Unexpected event type received: %s\n", evt.Type)
 				if err != nil {
-					err.Error()
+					log.Print(err.Error())
 				}
 			}
 		}
@@ -293,7 +294,7 @@ func main() {
 
 	err := client.Run()
 	if err != nil {
-		err.Error()
+		log.Fatal(err.Error())
 	}
 
 }
