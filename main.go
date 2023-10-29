@@ -285,7 +285,7 @@ func main() {
 			default:
 				_, err := fmt.Fprintf(os.Stderr, "Unexpected event type received: %s\n", evt.Type)
 				if err != nil {
-					err.Error()
+					log.Print(err.Error())
 				}
 			}
 		}
@@ -293,7 +293,7 @@ func main() {
 
 	err := client.Run()
 	if err != nil {
-		err.Error()
+		log.Fatal(err.Error())
 	}
 
 }
